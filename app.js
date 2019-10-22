@@ -20,5 +20,8 @@ app.get('/', (req, res, next) => {
   res.send('Hello World!');
 })
 
+app.use('/users', require('./routes/users'))
+app.use('/posts', require('./routes/posts'))
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`listening to PORT: ${PORT}`));
