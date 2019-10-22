@@ -3,8 +3,7 @@ const Schema = mongoose.Schema;
 
 const PostSchema = Schema({
   img: {
-    data: Buffer,
-    contentType: String,
+    type: String,
     required: true
   },
   caption: {
