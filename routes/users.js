@@ -28,6 +28,14 @@ router.get('/:id', async (req, res, next) => {
   }
 })
 
+router.post('/user', async (req, res, next) => {
+  try {
+    res.send("I am working 👍👍")
+  } catch (error) {
+    res.status(500).send(error)
+  }
+})
+
 router.put('/:id', async (req, res, next) => {
   try {
     res.send("I am working 👍")
