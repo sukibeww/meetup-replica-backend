@@ -5,31 +5,31 @@ const Post = require('./../models/Post')
 
 router.get('/', async (req, res, next) => {
   try {
-    
+    res.send("I am working 👍")
   } catch (error) {
     res.status(500).send(error)
   }
 })
 
-router.get('/:id', async => {
+router.get('/:id', async (req, res, next) => {
   try {
-    
+    res.send("I am working 👍")
   } catch (error) {
     res.status(500).send(error)
   }
 })
 
-router.put('/:id', async => {
+router.put('/:id', async (req, res, next) => {
   try {
-    
+    res.send("I am working 👍")
   } catch (error) {
     res.status(500).send(error)
   }
 })
 
-router.delete('/:id', async => {
+router.delete('/:id', async (req, res, next) => {
   try {
-    
+    res.send("I am working 👍")
   } catch (error) {
     res.status(500).send(error)
   }

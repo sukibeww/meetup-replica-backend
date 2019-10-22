@@ -5,24 +5,24 @@ const User = require('./../models/User')
 
 router.get('/login', async (req, res, next) => {
   try {
-    
+    res.send("I am working 👍")
   } catch (error) {
    res.status(500).send(error)
   }
 })
 
 // View user posts route
-router.get('/user/:id/:id', async (req, res, next) => {
+router.get('/:id/:id', async (req, res, next) => {
   try {
-    
+    res.send("I am working 👍")
   } catch (error) {
     res.status(500).send(error)
   }
 })
 
-router.get('/user/:id', async (req, res, next) => {
+router.get('/:id', async (req, res, next) => {
   try {
-    
+    res.send("I am working 👍👍")
   } catch (error) {
     res.status(500).send(error)
   }
@@ -30,7 +30,7 @@ router.get('/user/:id', async (req, res, next) => {
 
 router.put('/:id', async (req, res, next) => {
   try {
-    
+    res.send("I am working 👍")
   } catch (error) {
     res.status(500).send(error)
   }
@@ -38,7 +38,7 @@ router.put('/:id', async (req, res, next) => {
 
 router.delete('/:id', async (req, res, next) => {
   try {
-    
+    res.send("I am working 👍")
   } catch (error) {
     res.status(500).send(error)
   }
