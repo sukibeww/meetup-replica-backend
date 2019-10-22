@@ -5,7 +5,7 @@ const PostSchema = Schema({
   img: {
     data: Buffer,
     contentType: String,
-    required: true
+    // required: true
   },
   caption: {
     type: String,
