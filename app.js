@@ -10,8 +10,8 @@ const app = express();
 const dotenv = require('dotenv')
 dotenv.config()
 
-const morgan = require('morgan')
-app.use(morgan('dev'));
+// const morgan = require('morgan')
+// app.use(morgan('dev'));
 
 app.use(express.json());
 app.use(cors());
