@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const multer = require('multer');
+const session = require('express-session');
+const passport = require('passport');
 const fs = require('fs');
 const cors = require('cors');
 const app = express();
@@ -14,28 +16,25 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(cors());
 
-// app.use(multer({ dest: "./uploads/",
-//   rename: function (fieldname, filename) {
-//     return filename;
-//   },
-// }));
 
 mongoose.connect(process.env.PRODUCTION_DB, {useUnifiedTopology: true, useNewUrlParser: true}, (err, success) => {
   if (err) { return console.error(err)}
   console.log('Connection Status: Success ✅');
 })
 
-// const Post = require('./models/Post')
-// app.post("/api/photo", async (req, res) => {
-//   var post = new Post({
-//     img: {
-//       data: fs.readFileSync(req.files.userPhoto.path),
-//       contentType: "image/png"
-//     }
-//   });
-//   await newItem.save();
-//   res.send(post);
-// });
+// Sessions
+app.use(
+	session({
+		secret: 'fraggle-rock', //pick a random string to make the hash that is generated secure
+		// store: new MongoStore({ mongooseConnection: dbConnection }),
+		resave: false, //required
+		saveUninitialized: false //required
+	})
+)
+
+// Passport
+app.use(passport.initialize())
+app.use(passport.session()) // calls the deserializeUser
 
 app.get('/', (req, res, next) => {
   res.send('Hello World!');

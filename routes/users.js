@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
 const User = require('./../models/User')
+const passport = require('../passport')
 
 
 router.get('/:id', async (req, res, next) => {
@@ -14,7 +15,10 @@ router.get('/:id', async (req, res, next) => {
 
 router.post('/login', async (req, res, next) => {
 
-  const { email, password } = req.body
+  const {
+    email,
+    password
+  } = req.body
   try {
     const user = await User.findOne({
       email: email
@@ -25,29 +29,40 @@ router.post('/login', async (req, res, next) => {
       res.status(403).send("Password incorrect")
     }
   } catch (error) {
-   res.status(500).send(error)
+    res.status(500).send(error)
   }
 })
 
 router.post('/new', async (req, res, next) => {
-  const { name, email, password, password2 } = req.body
+  const {
+    name,
+    email,
+    password,
+    password2
+  } = req.body
   let errors = []
   // Check required fields
   if (!name || !email || !password || !password2) {
-    errors.push({msg: 'Please fill in all fields'})
+    errors.push({
+      msg: 'Please fill in all fields'
+    })
   }
 
   // Check passwords match
   if (password != password2) {
-    errors.push({msg:"Passwords do not match"})
+    errors.push({
+      msg: "Passwords do not match"
+    })
   }
 
   // Check password length
   if (password.length < 6) {
-    errors.push({msg: "Password needs to be at least 6 characters"})
+    errors.push({
+      msg: "Password needs to be at least 6 characters"
+    })
   }
 
-  if(errors.length > 0) {
+  if (errors.length > 0) {
     res.send({
       errors,
       name,
@@ -56,10 +71,14 @@ router.post('/new', async (req, res, next) => {
   } else {
     // Validation Passed
     try {
-      const user = await User.findOne({email : email})
+      const user = await User.findOne({
+        email: email
+      })
       if (user) {
         // User exists - throw error
-        errors.push({msg: 'User already exists'})
+        errors.push({
+          msg: 'User already exists'
+        })
         res.send({
           errors,
           name,
