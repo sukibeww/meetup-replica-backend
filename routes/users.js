@@ -1,104 +1,127 @@
-const express = require('express')
-const router = express.Router()
-const mongoose = require('mongoose')
-const User = require('./../models/User')
-const passport = require('../passport')
+const express = require('express');
+const router = express.Router();
+const mongoose = require('mongoose');
+const User = require('./../models/User');
+const passport = require('../passport');
+const UserSession = require('../models/UserSession');
+const auth = require('../middleware/auth');
 
-
-router.get('/:id', async (req, res, next) => {
+router.post('/new', async (req, res) => {
+  // Create a new user
   try {
-    res.send("I am working 👍👍")
+      const user = new User(req.body)
+      await user.save()
+      const token = await user.generateAuthToken()
+      res.status(201).send({ user, token })
   } catch (error) {
-    res.status(500).send(error)
+      res.status(400).send(error)
   }
 })
 
-router.post('/login', async (req, res, next) => {
-
-  const {
-    email,
-    password
-  } = req.body
+router.post('/login', async(req, res) => {
+  //Login a registered user
   try {
-    const user = await User.findOne({
-      email: email
-    })
-    if (user.password === password) {
-      res.send(user.id)
-    } else {
-      res.status(403).send("Password incorrect")
-    }
-  } catch (error) {
-    res.status(500).send(error)
-  }
-})
-
-router.post('/new', async (req, res, next) => {
-  const {
-    name,
-    email,
-    password,
-    password2
-  } = req.body
-  let errors = []
-  // Check required fields
-  if (!name || !email || !password || !password2) {
-    errors.push({
-      msg: 'Please fill in all fields'
-    })
-  }
-
-  // Check passwords match
-  if (password != password2) {
-    errors.push({
-      msg: "Passwords do not match"
-    })
-  }
-
-  // Check password length
-  if (password.length < 6) {
-    errors.push({
-      msg: "Password needs to be at least 6 characters"
-    })
-  }
-
-  if (errors.length > 0) {
-    res.send({
-      errors,
-      name,
-      email
-    })
-  } else {
-    // Validation Passed
-    try {
-      const user = await User.findOne({
-        email: email
-      })
-      if (user) {
-        // User exists - throw error
-        errors.push({
-          msg: 'User already exists'
-        })
-        res.send({
-          errors,
-          name,
-          email
-        })
-      } else {
-        const newUser = new User({
-          name: name,
-          email: email,
-          password: password
-        })
-        console.log('User added')
-        await newUser.save();
-        res.send(newUser.id)
+      const { email, password } = req.body
+      const user = await User.findByCredentials(email, password)
+      if (!user) {
+          return res.status(401).send({error: 'Login failed! Check authentication credentials'})
       }
-    } catch (err) {
-      res.status(500).send(err);
-    }
+      const token = await user.generateAuthToken()
+      res.send({ user, token })
+  } catch (error) {
+      res.status(400).send(error)
+      // res.status(400).send(error)
   }
 })
+
+router.get('/profile', auth, async(req, res) => {
+  // View logged in user profile
+  res.send(req.user)
+})
+
+router.post('/logout', auth, async (req, res) => {
+  // Log user out of the application
+  try {
+      req.user.tokens = req.user.tokens.filter((token) => {
+          return token.token != req.token
+      })
+      await req.user.save()
+      res.send()
+  } catch (error) {
+      res.status(500).send(error)
+  }
+})
+
+router.post('/logoutall', auth, async(req, res) => {
+  // Log user out of all devices
+  try {
+      req.user.tokens.splice(0, req.user.tokens.length)
+      await req.user.save()
+      res.send()
+  } catch (error) {
+      res.status(500).send(error)
+  }
+})
+
+router.get('/verify', (req, res, next) => {
+  // Get the token
+  const { query } = req;
+  const { token } = query;
+  // ?token=test
+  // Verify the token is one of a kind and it's not deleted.
+  UserSession.find({
+    _id: token,
+    isDeleted: false
+  }, (err, sessions) => {
+    if (err) {
+      console.log(err);
+      return res.send({
+        success: false,
+        message: 'Error: Server error'
+      });
+    }
+    if (sessions.length != 1) {
+      return res.send({
+        success: false,
+        message: 'Error: Invalid'
+      });
+    } else {
+      // DO ACTION
+      return res.send({
+        success: true,
+        message: 'Good'
+      });
+    }
+  });
+});
+
+router.get('/logout', (req, res, next) => {
+  // Get the token
+  const {query} = req;
+  const {token} = query;
+  // Verify the token is one of a kind and it's not deleted.
+  UserSession.findOneAndUpdate({
+    _id: token,
+    isDeleted: false
+  }, {
+    $set: {
+      isDeleted: true
+    }
+  }, null, (err, sessions) => {
+    if (err) {
+      console.log(err);
+      return res.send({
+        success: false,
+        message: 'Error: Server error'
+      });
+    }
+    return res.send({
+      success: true,
+      message: 'Logged out'
+    });
+  });
+});
+
 
 router.post('/user', async (req, res, next) => {
   try {
